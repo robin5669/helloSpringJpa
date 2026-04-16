@@ -39,7 +39,7 @@ public class DbConfig {
     public DataSource dataSource() {
         DriverManagerDataSource ds = new DriverManagerDataSource();
         ds.setDriverClassName("com.mysql.cj.jdbc.Driver");
-        ds.setUrl("jdbc:mysql://localhost:3306/productdb" +
+        ds.setUrl("jdbc:mysql://mysql:3306/productdb" +
                   "?useSSL=false" +
                   "&allowPublicKeyRetrieval=true" +
                   "&serverTimezone=Asia/Seoul" +
@@ -60,19 +60,17 @@ public class DbConfig {
         LocalContainerEntityManagerFactoryBean emf =
                 new LocalContainerEntityManagerFactoryBean();
         emf.setDataSource(dataSource());
-        emf.setJpaVendorAdapter(new HibernateJpaVendorAdapter()); // JPA 구현체: Hibernate
-        emf.setPackagesToScan("kr.ac.hansung.cse.model");         // @Entity 클래스 위치
+        emf.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
+        emf.setPackagesToScan("kr.ac.hansung.cse.model");
         emf.setJpaProperties(hibernateProperties());
         return emf;
     }
 
     private Properties hibernateProperties() {
         Properties props = new Properties();
-        props.setProperty("hibernate.hbm2ddl.auto",
-                "none");                                  // DDL 자동 실행 안 함 (init.sql이 담당)
-        props.setProperty("hibernate.show_sql",  "true"); // 실행 SQL 콘솔 출력 (학습용)
-        props.setProperty("hibernate.format_sql", "true"); // SQL 줄바꿈 출력
-        // dialect, allow_jdbc_metadata_access 생략 → Hibernate가 JDBC 메타데이터로 자동 감지
+        props.setProperty("hibernate.hbm2ddl.auto", "none");
+        props.setProperty("hibernate.show_sql", "true");
+        props.setProperty("hibernate.format_sql", "true");
         return props;
     }
 

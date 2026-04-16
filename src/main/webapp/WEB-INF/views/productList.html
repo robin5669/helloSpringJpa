@@ -119,6 +119,7 @@
             </tr>
         </tbody>
     </table>
-
+<hr>
+<p th:text="${'실습 수행 일시: ' + #temporals.format(#temporals.createNow(), 'yyyy-MM-dd HH:mm:ss') + ' | 학번: 2271395 | 성명: 김건후'}"></p>
 </body>
 </html>
