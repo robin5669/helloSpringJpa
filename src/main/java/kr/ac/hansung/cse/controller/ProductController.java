@@ -1,79 +1,130 @@
-package kr.ac.hansung.cse.service;
+package kr.ac.hansung.cse.controller;
 
-import kr.ac.hansung.cse.model.Category;
+import jakarta.validation.Valid;
+import kr.ac.hansung.cse.exception.ProductNotFoundException;
 import kr.ac.hansung.cse.model.Product;
-import kr.ac.hansung.cse.repository.CategoryRepository;
-import kr.ac.hansung.cse.repository.ProductRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import kr.ac.hansung.cse.model.ProductForm;
+import kr.ac.hansung.cse.service.ProductService;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
-import java.util.Optional;
 
-/**
- * =====================================================================
- * ProductService - 비즈니스 로직 계층 (Service Layer)
- * =====================================================================
- */
-@Service
-@Transactional(readOnly = true)
-public class ProductService {
+@Controller
+@RequestMapping("/products")
+public class ProductController {
 
-    private final ProductRepository productRepository;
-    private final CategoryRepository categoryRepository;
+    private final ProductService productService;
 
-    public ProductService(ProductRepository productRepository,
-                          CategoryRepository categoryRepository) {
-        this.productRepository = productRepository;
-        this.categoryRepository = categoryRepository;
+    public ProductController(ProductService productService) {
+        this.productService = productService;
     }
 
-    public Category resolveCategory(String categoryName) {
-        if (categoryName == null || categoryName.isBlank()) return null;
-        return categoryRepository.findByName(categoryName).orElse(null);
-    }
+    @GetMapping
+    public String listProducts(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String category,
+            Model model) {
 
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
-    }
+        List<Product> products;
 
-    public Optional<Product> getProductById(Long id) {
-        return productRepository.findById(id);
-    }
-
-    public List<Product> search(String keyword, String category) {
-        boolean hasKeyword = keyword != null && !keyword.isBlank();
-        boolean hasCategory = category != null && !category.isBlank();
-
-        if (hasKeyword && hasCategory) {
-            return productRepository.findByNameContainingAndCategoryName(keyword, category);
-        } else if (hasKeyword) {
-            return productRepository.findByNameContaining(keyword);
-        } else if (hasCategory) {
-            return productRepository.findByCategoryName(category);
+        if ((keyword == null || keyword.isEmpty()) &&
+            (category == null || category.isEmpty())) {
+            products = productService.getAllProducts();
         } else {
-            return productRepository.findAll();
+            products = productService.search(keyword, category);
         }
+
+        model.addAttribute("products", products);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("category", category);
+
+        return "productList";
     }
 
-    @Transactional
-    public Product createProduct(Product product) {
-        if (product.getPrice() != null && product.getPrice().compareTo(java.math.BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("상품 가격은 0 이상이어야 합니다.");
-        }
-        return productRepository.save(product);
+    @GetMapping("/{id}")
+    public String showProduct(@PathVariable Long id, Model model) {
+        Product product = productService.getProductById(id)
+                .orElseThrow(() -> new ProductNotFoundException(id));
+
+        model.addAttribute("product", product);
+        return "productView";
     }
 
-    @Transactional
-    public Product updateProduct(Product product) {
-        if (product.getPrice() != null && product.getPrice().compareTo(java.math.BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("상품 가격은 0 이상이어야 합니다.");
-        }
-        return productRepository.update(product);
+    @GetMapping("/create")
+    public String showCreateForm(Model model) {
+        model.addAttribute("productForm", new ProductForm());
+        return "productForm";
     }
 
-    @Transactional
-    public void deleteProduct(Long id) {
-        productRepository.delete(id);
+    @PostMapping("/create")
+    public String createProduct(@Valid @ModelAttribute("productForm") ProductForm productForm,
+                                BindingResult bindingResult,
+                                RedirectAttributes redirectAttributes) {
+
+        if (bindingResult.hasErrors()) {
+            return "productForm";
+        }
+
+        Product product = productForm.toEntity();
+        product.setCategory(productService.resolveCategory(productForm.getCategory()));
+        Product savedProduct = productService.createProduct(product);
+
+        redirectAttributes.addFlashAttribute("successMessage",
+                "'" + savedProduct.getName() + "' 상품이 성공적으로 등록되었습니다.");
+
+        return "redirect:/products";
+    }
+
+    @GetMapping("/{id}/edit")
+    public String showEditForm(@PathVariable Long id, Model model) {
+        Product product = productService.getProductById(id)
+                .orElseThrow(() -> new ProductNotFoundException(id));
+
+        model.addAttribute("productForm", ProductForm.from(product));
+        return "productEditForm";
+    }
+
+    @PostMapping("/{id}/edit")
+    public String updateProduct(@PathVariable Long id,
+                                @Valid @ModelAttribute("productForm") ProductForm productForm,
+                                BindingResult bindingResult,
+                                RedirectAttributes redirectAttributes) {
+
+        if (bindingResult.hasErrors()) {
+            return "productEditForm";
+        }
+
+        Product product = productService.getProductById(id)
+                .orElseThrow(() -> new ProductNotFoundException(id));
+
+        product.setName(productForm.getName());
+        product.setCategory(productService.resolveCategory(productForm.getCategory()));
+        product.setPrice(productForm.getPrice());
+        product.setDescription(productForm.getDescription());
+
+        productService.updateProduct(product);
+
+        redirectAttributes.addFlashAttribute("successMessage",
+                "'" + product.getName() + "' 상품 정보가 수정되었습니다.");
+        return "redirect:/products/" + id;
+    }
+
+    @PostMapping("/{id}/delete")
+    public String deleteProduct(@PathVariable Long id,
+                                RedirectAttributes redirectAttributes) {
+
+        Product product = productService.getProductById(id)
+                .orElseThrow(() -> new ProductNotFoundException(id));
+
+        String productName = product.getName();
+        productService.deleteProduct(id);
+
+        redirectAttributes.addFlashAttribute("successMessage",
+                "'" + productName + "' 상품이 삭제되었습니다.");
+        return "redirect:/products";
     }
 }
