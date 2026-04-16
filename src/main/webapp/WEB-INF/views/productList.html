@@ -26,11 +26,37 @@
         .detail-link:hover { text-decoration: underline; }
         .edit-link { color: #e67e22; text-decoration: none; margin-right: 8px; }
         .edit-link:hover { text-decoration: underline; }
-        /* 삭제 버튼: HTML 폼 안에 있어야 POST 요청을 보낼 수 있습니다. */
         .btn-delete { background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 0.95em; padding: 0; text-decoration: underline; }
         .btn-delete:hover { color: #c0392b; }
         .alert-success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 12px 16px; border-radius: 4px; margin-bottom: 16px; }
         .empty-msg { text-align: center; padding: 40px; color: #999; font-size: 1.1em; }
+
+        .search-form {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-form input,
+        .search-form select {
+            padding: 8px 10px;
+            font-size: 14px;
+        }
+
+        .search-form button {
+            padding: 8px 16px;
+            background: #4a90d9;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .search-form button:hover {
+            background: #357abd;
+        }
     </style>
 </head>
 <body>
@@ -49,6 +75,22 @@
 
     <a class="btn" th:href="@{/products/create}">+ 새 상품 등록</a>
 
+    <!-- 검색 폼 -->
+    <form th:action="@{/products}" method="get" class="search-form">
+        <input type="text" name="keyword" th:value="${keyword}" placeholder="상품명 검색">
+
+        <select name="category">
+            <option value="">전체 카테고리</option>
+            <option value="전자제품" th:selected="${category == '전자제품'}">전자제품</option>
+            <option value="도서" th:selected="${category == '도서'}">도서</option>
+            <option value="스포츠" th:selected="${category == '스포츠'}">스포츠</option>
+            <option value="식품" th:selected="${category == '식품'}">식품</option>
+            <option value="의류" th:selected="${category == '의류'}">의류</option>
+        </select>
+
+        <button type="submit">검색</button>
+    </form>
+
     <div class="empty-msg" th:if="${#lists.isEmpty(products)}">
         등록된 상품이 없습니다. 새 상품을 등록해 주세요.
     </div>
@@ -65,7 +107,7 @@
         </thead>
         <tbody>
             <!--
-                th:each="product, iterStat : ${products}":
+                th:each="product : ${products}":
                 Java의 for-each 루프에 해당합니다.
                 Controller에서 model.addAttribute("products", products)로
                 전달한 List<Product>를 하나씩 순회합니다.
@@ -119,7 +161,8 @@
             </tr>
         </tbody>
     </table>
-<hr>
-<p th:text="${'실습 수행 일시: ' + #temporals.format(#temporals.createNow(), 'yyyy-MM-dd HH:mm:ss') + ' | 학번: 2271395 | 성명: 김건후'}"></p>
+
+    <hr>
+    <p th:text="${'실습 수행 일시: ' + #temporals.format(#temporals.createNow(), 'yyyy-MM-dd HH:mm:ss') + ' | 학번: 2271395 | 성명: 김건후'}"></p>
 </body>
 </html>
