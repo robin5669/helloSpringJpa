@@ -44,26 +44,14 @@ public class ProductRepository {
                 .getResultList();
     }
 
-    public List<Product> findByCategoryName(String categoryName) {
+    public List<Product> findByCategoryId(Long categoryId) {
         return entityManager.createQuery(
                         "SELECT p FROM Product p " +
-                        "LEFT JOIN FETCH p.category c " +
-                        "WHERE c.name = :categoryName " +
+                        "LEFT JOIN FETCH p.category " +
+                        "WHERE p.category.id = :cid " +
                         "ORDER BY p.id ASC",
                         Product.class)
-                .setParameter("categoryName", categoryName)
-                .getResultList();
-    }
-
-    public List<Product> findByNameContainingAndCategoryName(String keyword, String categoryName) {
-        return entityManager.createQuery(
-                        "SELECT p FROM Product p " +
-                        "LEFT JOIN FETCH p.category c " +
-                        "WHERE p.name LIKE :keyword AND c.name = :categoryName " +
-                        "ORDER BY p.id ASC",
-                        Product.class)
-                .setParameter("keyword", "%" + keyword + "%")
-                .setParameter("categoryName", categoryName)
+                .setParameter("cid", categoryId)
                 .getResultList();
     }
 

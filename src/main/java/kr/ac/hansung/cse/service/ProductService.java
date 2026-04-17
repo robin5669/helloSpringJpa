@@ -39,19 +39,12 @@ public class ProductService {
         return productRepository.findById(id);
     }
 
-    public List<Product> search(String keyword, String category) {
-        boolean hasKeyword = keyword != null && !keyword.isBlank();
-        boolean hasCategory = category != null && !category.isBlank();
+    public List<Product> searchByName(String keyword) {
+        return productRepository.findByNameContaining(keyword);
+    }
 
-        if (hasKeyword && hasCategory) {
-            return productRepository.findByNameContainingAndCategoryName(keyword, category);
-        } else if (hasKeyword) {
-            return productRepository.findByNameContaining(keyword);
-        } else if (hasCategory) {
-            return productRepository.findByCategoryName(category);
-        } else {
-            return productRepository.findAll();
-        }
+    public List<Product> searchByCategory(Long categoryId) {
+        return productRepository.findByCategoryId(categoryId);
     }
 
     @Transactional
