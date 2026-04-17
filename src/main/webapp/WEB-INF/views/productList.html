@@ -5,23 +5,116 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>상품 목록 - Product Management</title>
     <style>
-        body { font-family: 'Malgun Gothic', Arial, sans-serif; max-width: 1100px; margin: 40px auto; padding: 0 20px; color: #333; }
-        h1 { border-bottom: 2px solid #4a90d9; padding-bottom: 10px; color: #2c3e50; }
-        .btn { display: inline-block; padding: 8px 16px; background: #4a90d9; color: white; text-decoration: none; border-radius: 4px; margin-bottom: 16px; }
-        .btn:hover { background: #357abd; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { background: #4a90d9; color: white; padding: 12px; text-align: left; }
-        td { padding: 10px 12px; border-bottom: 1px solid #ddd; vertical-align: middle; }
-        tr:hover { background: #f5f8ff; }
-        .price { text-align: right; font-weight: bold; color: #e74c3c; }
-        .detail-link { color: #4a90d9; text-decoration: none; }
-        .detail-link:hover { text-decoration: underline; }
-        .edit-link { color: #e67e22; text-decoration: none; margin-right: 8px; }
-        .edit-link:hover { text-decoration: underline; }
-        .btn-delete { background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 0.95em; padding: 0; text-decoration: underline; }
-        .btn-delete:hover { color: #c0392b; }
-        .alert-success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 12px 16px; border-radius: 4px; margin-bottom: 16px; }
-        .empty-msg { text-align: center; padding: 40px; color: #999; font-size: 1.1em; }
+        body {
+            font-family: 'Malgun Gothic', Arial, sans-serif;
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+            color: #333;
+        }
+
+        h1 {
+            border-bottom: 2px solid #4a90d9;
+            padding-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #4a90d9;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-bottom: 16px;
+            margin-right: 8px;
+        }
+
+        .btn:hover {
+            background: #357abd;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th {
+            background: #4a90d9;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #ddd;
+            vertical-align: middle;
+        }
+
+        tr:hover {
+            background: #f5f8ff;
+        }
+
+        .price {
+            text-align: right;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+
+        .detail-link {
+            color: #4a90d9;
+            text-decoration: none;
+        }
+
+        .detail-link:hover {
+            text-decoration: underline;
+        }
+
+        .edit-link {
+            color: #e67e22;
+            text-decoration: none;
+            margin-right: 8px;
+        }
+
+        .edit-link:hover {
+            text-decoration: underline;
+        }
+
+        .btn-delete {
+            background: none;
+            border: none;
+            color: #e74c3c;
+            cursor: pointer;
+            font-size: 0.95em;
+            padding: 0;
+            text-decoration: underline;
+        }
+
+        .btn-delete:hover {
+            color: #c0392b;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+        }
+
+        .empty-msg {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-size: 1.1em;
+        }
+
+        .action-buttons {
+            margin-bottom: 10px;
+        }
 
         .search-form {
             margin: 20px 0;
@@ -53,72 +146,76 @@
 </head>
 <body>
 
-    <h1>상품 목록</h1>
+<h1>상품 목록</h1>
 
-    <div class="alert-success" th:if="${successMessage}">
-        <span th:text="${successMessage}">성공 메시지</span>
-    </div>
+<div class="alert-success" th:if="${successMessage}">
+    <span th:text="${successMessage}">성공 메시지</span>
+</div>
 
+<div class="action-buttons">
     <a class="btn" th:href="@{/products/create}">+ 새 상품 등록</a>
+    <a class="btn" th:href="@{/categories}">+ 카테고리 관리</a>
+</div>
 
-    <form th:action="@{/products}" method="get" class="search-form">
-        <input type="text" name="keyword" th:value="${keyword}" placeholder="상품명 검색">
+<form th:action="@{/products}" method="get" class="search-form">
+    <input type="text" name="keyword" th:value="${keyword}" placeholder="상품명 검색">
 
-        <select name="categoryId">
-            <option value="">-- 전체 카테고리 --</option>
-            <option th:each="cat : ${categories}"
-                    th:value="${cat.id}"
-                    th:text="${cat.name}"
-                    th:selected="${cat.id == categoryId}">
-            </option>
-        </select>
+    <select name="categoryId">
+        <option value="">-- 전체 카테고리 --</option>
+        <option th:each="cat : ${categories}"
+                th:value="${cat.id}"
+                th:text="${cat.name}"
+                th:selected="${cat.id == categoryId}">
+        </option>
+    </select>
 
-        <button type="submit">검색</button>
-    </form>
+    <button type="submit">검색</button>
+</form>
 
-    <div class="empty-msg" th:if="${#lists.isEmpty(products)}">
-        검색 결과가 없습니다.
-    </div>
+<div class="empty-msg" th:if="${#lists.isEmpty(products)}">
+    검색 결과가 없습니다.
+</div>
 
-    <table th:unless="${#lists.isEmpty(products)}">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>상품명</th>
-                <th>카테고리</th>
-                <th>가격</th>
-                <th>작업</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="product : ${products}">
-                <td th:text="${product.id}">1</td>
-                <td>
-                    <a class="detail-link"
-                       th:href="@{/products/{id}(id=${product.id})}"
-                       th:text="${product.name}">상품명</a>
-                </td>
-                <td th:text="${product.category != null ? product.category.name : '-'}">카테고리</td>
-                <td class="price"
-                    th:text="${#numbers.formatDecimal(product.price, 1, 'COMMA', 0, 'POINT')} + '원'">
-                    15,000원
-                </td>
-                <td>
-                    <a class="edit-link"
-                       th:href="@{/products/{id}/edit(id=${product.id})}">수정</a>
+<table th:unless="${#lists.isEmpty(products)}">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>상품명</th>
+        <th>카테고리</th>
+        <th>가격</th>
+        <th>작업</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="product : ${products}">
+        <td th:text="${product.id}">1</td>
+        <td>
+            <a class="detail-link"
+               th:href="@{/products/{id}(id=${product.id})}"
+               th:text="${product.name}">상품명</a>
+        </td>
+        <td th:text="${product.category != null ? product.category.name : '-'}">카테고리</td>
+        <td class="price"
+            th:text="${#numbers.formatDecimal(product.price, 1, 'COMMA', 0, 'POINT')} + '원'">
+            15,000원
+        </td>
+        <td>
+            <a class="edit-link"
+               th:href="@{/products/{id}/edit(id=${product.id})}">수정</a>
 
-                    <form th:action="@{/products/{id}/delete(id=${product.id})}"
-                          method="post"
-                          style="display: inline;"
-                          onsubmit="return confirm('정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.');">
-                        <button type="submit" class="btn-delete">삭제</button>
-                    </form>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+            <form th:action="@{/products/{id}/delete(id=${product.id})}"
+                  method="post"
+                  style="display: inline;"
+                  onsubmit="return confirm('정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.');">
+                <button type="submit" class="btn-delete">삭제</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
 
-    <hr>
-    <p th:text="${'실습 수행 일시: ' + #temporals.format(#temporals.createNow(), 'yyyy-MM-dd HH:mm:ss') + ' | 학번: 2271395 | 성명: 김건후'}"></p>
+<hr>
+<p th:text="${'실습 수행 일시: ' + #temporals.format(#temporals.createNow(), 'yyyy-MM-dd HH:mm:ss') + ' | 학번: 2271395 | 성명: 김건후'}"></p>
+
 </body>
 </html>
